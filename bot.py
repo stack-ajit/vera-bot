@@ -23,13 +23,16 @@ from pydantic import BaseModel
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("vera_bot")
 
-# ── Gemini client ─────────────────────────────────────────────────────────────
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-genai.configure(api_key=GEMINI_API_KEY)
+# ── Gemini config ─────────────────────────────────────────────────────────────
 GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+if not GEMINI_API_KEY:
+    raise RuntimeError("GEMINI_API_KEY environment variable is not set!")
+genai.configure(api_key=GEMINI_API_KEY)
+log.info(f"Gemini configured with key length: {len(GEMINI_API_KEY)}")
 
 def call_gemini(system_prompt: str, user_prompt: str, max_tokens: int = 512) -> str:
-    """Call Gemini and return raw text response."""
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
     model = genai.GenerativeModel(
         model_name=GEMINI_MODEL,
         system_instruction=system_prompt,
